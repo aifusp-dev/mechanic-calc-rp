@@ -1,6 +1,4 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
 
 :root {
   --foreground-rgb: 255, 255, 255;
@@ -11,4 +9,10 @@
 body {
   color: rgb(var(--foreground-rgb));
   background: rgb(var(--background-start-rgb));
+}
+
+@layer base {
+  body {
+    @apply min-h-screen bg-neutral-950 text-neutral-100;
+  }
 }
