@@ -6,6 +6,7 @@ import { Plus, Minus, Trash2, Copy, Check, Wrench, Receipt } from "lucide-react"
 
 export default function MechanicCalculator() {
   const [counts, setCounts] = useState<{ [key: string]: number }>({});
+  const [discount, setDiscount] = useState<number>(0);
   const [copied, setCopied] = useState(false);
 
   const updateCount = (id: string, delta: number) => {
@@ -18,6 +19,7 @@ export default function MechanicCalculator() {
 
   const reset = () => {
     setCounts({});
+    setDiscount(0);
   };
 
   const selectedItems = useMemo(() => {
@@ -32,18 +34,27 @@ export default function MechanicCalculator() {
     return list;
   }, [counts]);
 
-  const total = useMemo(() => {
+  const subtotal = useMemo(() => {
     return selectedItems.reduce((acc, { item, count }) => acc + item.price * count, 0);
   }, [selectedItems]);
+
+  const total = useMemo(() => {
+    return Math.max(0, subtotal - discount);
+  }, [subtotal, discount]);
 
   const copyToClipboard = () => {
     if (selectedItems.length === 0) return;
 
     let text = "📋 **FACTURA TALLER MECÁNICO**\n\n";
     selectedItems.forEach(({ item, count }) => {
-      text += `🔹 ${item.name} x${count} - ${item.price * count}€\n`;
+      text += `🔹 ${item.name} x${count} - ${item.price * count}$\n`;
     });
-    text += `\n💰 **TOTAL: ${total}€**`;
+    
+    if (discount > 0) {
+      text += `\n📉 **DESCUENTO: -${discount}$**`;
+    }
+    
+    text += `\n💰 **TOTAL: ${total}$**`;
 
     navigator.clipboard.writeText(text);
     setCopied(true);
@@ -101,7 +112,7 @@ export default function MechanicCalculator() {
                           <h3 className="font-bold text-sm uppercase leading-tight group-hover:text-orange-400 transition-colors">
                             {item.name}
                           </h3>
-                          <p className="text-orange-500 font-mono text-xs mt-1">{item.price}€ / ud</p>
+                          <p className="text-orange-500 font-mono text-xs mt-1">{item.price}$ / ud</p>
                         </div>
                         {counts[item.id] > 0 && (
                           <span className="bg-orange-500 text-black text-[10px] font-black px-2 py-0.5 rounded uppercase">
@@ -154,20 +165,41 @@ export default function MechanicCalculator() {
                             {item.name}
                           </span>
                           <span className="text-[10px] text-neutral-500 uppercase tracking-tighter">
-                            {count} x {item.price}€
+                            {count} x {item.price}$
                           </span>
                         </div>
-                        <span className="font-mono font-bold text-orange-500">{item.price * count}€</span>
+                        <span className="font-mono font-bold text-orange-500">{item.price * count}$</span>
                       </div>
                     ))}
                   </div>
                 )}
 
-                <div className="border-t border-dashed border-neutral-700 pt-6 mt-6">
-                  <div className="flex justify-between items-end mb-8">
-                    <span className="text-neutral-500 uppercase font-black text-xs tracking-widest">Total Estimado</span>
+                <div className="border-t border-dashed border-neutral-700 pt-6 mt-6 space-y-4">
+                  <div className="flex flex-col gap-2">
+                    <label className="text-[10px] text-neutral-500 uppercase font-black tracking-widest">Descuento Directo ($)</label>
+                    <div className="relative">
+                      <input
+                        type="number"
+                        value={discount === 0 ? "" : discount}
+                        onChange={(e) => setDiscount(Math.max(0, Number(e.target.value)))}
+                        placeholder="0"
+                        className="w-full bg-neutral-950 border border-neutral-800 rounded-lg py-2 px-3 text-sm font-bold text-orange-500 focus:outline-none focus:border-orange-500/50 transition-colors"
+                      />
+                      <span className="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-600 font-bold text-sm">$</span>
+                    </div>
+                  </div>
+
+                  <div className="flex justify-between items-end pt-2">
+                    <div className="flex flex-col">
+                      {discount > 0 && (
+                        <span className="text-[10px] text-red-500 font-bold uppercase tracking-tighter line-through mb-1">
+                          Subtotal: {subtotal}$
+                        </span>
+                      )}
+                      <span className="text-neutral-500 uppercase font-black text-xs tracking-widest">Total Final</span>
+                    </div>
                     <span className="text-4xl font-black text-white italic">
-                      {total}<span className="text-orange-500 ml-1 not-italic">€</span>
+                      {total}<span className="text-orange-500 ml-1 not-italic">$</span>
                     </span>
                   </div>
 

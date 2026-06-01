@@ -31,7 +31,7 @@ export const PRICING_DATA: Category[] = [
       { id: "juego-llantas", name: "JUEGO DE LLANTAS", price: 900 },
       { id: "filtro-aire", name: "FILTRO DE AIRE", price: 100 },
       { id: "controlador-luces", name: "CONTROLADOR DE LUCES", price: 450 },
-      { id: "bujia", name: "BUJÍA", price: 90 },
+      { id: "bujia", name: "BUJÍA", price: 100 },
       { id: "bateria-ev", name: "BATERÍA EV", price: 300 },
     ],
   },
